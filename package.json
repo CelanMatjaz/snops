@@ -50,7 +50,7 @@
   "scripts": {
     "dev:server": "webpack --config ./webpack/server.webpack.ts -w",
     "dev:client": "webpack --config ./webpack/client.webpack.ts -w",
-    "dev": "concurrently \"yarn dev:server\" \"yarn dev:client\" \"nodemon  -r dotenv/config ./build/debug/server.js\"",
+    "dev": "concurrently \"yarn dev:server\" \"yarn dev:client\" \"nodemon -r dotenv/config ./build/debug/server.js --watch ./build/debug/server.js\"",
     "build": "set NODE_ENV=production&& webpack --config ./webpack/server.webpack.ts && webpack --config ./webpack/client.webpack.ts ",
     "copy:public:debug": "node ./scripts/copyPublicFolder.js debug",
     "copy:public:dist": "node ./scripts/copyPublicFolder.js dist"
