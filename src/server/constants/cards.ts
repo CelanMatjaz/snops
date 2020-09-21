@@ -1,0 +1,31 @@
+export const cards = {
+  '10C': '10C.png',
+  '10D': '10D.png',
+  '10H': '10H.png',
+  '10S': '10S.png',
+  AC: 'AC.png',
+  AD: 'AD.png',
+  AH: 'AH.png',
+  AS: 'AS.png',
+  JC: 'JC.png',
+  JD: 'JD.png',
+  JH: 'JH.png',
+  JS: 'JS.png',
+  KC: 'KC.png',
+  KD: 'KD.png',
+  KH: 'KH.png',
+  KS: 'KS.png',
+  QC: 'QC.png',
+  QD: 'QD.png',
+  QH: 'QH.png',
+  QS: 'QS.png',
+};
+
+export const cardBacks = {
+  blue: 'blue_back.png',
+  gray: 'gray_back.png',
+  green: 'gree  n_back.png',
+  purple: 'purple_back.png',
+  red: 'red_back.png',
+  yellow: 'yellow_back.png',
+};
