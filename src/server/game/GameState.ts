@@ -74,27 +74,3 @@ export enum GameTypes {
   GAME18,
   GAME24,
 }
-
-// Zmagaš ko maš 66 pointov, samo ko ti pogledaš
-
-/*
-1 - zmaga + oponent 33+
-2 - zmaga + <33 in 1 štih
-3 - zmaga + nima nič
-*/
-
-/*
-normalno
-mali - 7
-vlko - 9
-vlki z adutom - 12
-18 - 5 istih + as
-24 -  5 adutov + as
-
-*/
-
-/*
-dealing 
-
-
-*/
