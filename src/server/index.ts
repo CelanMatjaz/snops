@@ -2,7 +2,7 @@ import socketIO from 'socket.io';
 import * as http from 'http';
 
 import app from './app';
-import applySocket from './socket';
+import applySocket from './socket/socket';
 
 const server = http.createServer(app);
 const io = socketIO(server);
