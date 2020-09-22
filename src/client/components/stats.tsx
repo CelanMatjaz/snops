@@ -1,21 +1,36 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import * as ReactDOM from 'react-dom';
+import styled from 'styled-components';
+
+import { socket } from '..';
+import { channels } from '../../server/socket/channels';
 
 interface Props {
   numOfPlayers: number;
-  numOfPlayersReady: number;
+  numOfReadyPlayers: number;
+  disableReadyButton: boolean;
 }
 
 const Stats: React.FC<Props> = (props) => {
-  const { numOfPlayers, numOfPlayersReady, children } = props;
+  const { numOfPlayers, numOfReadyPlayers, disableReadyButton, children } = props;
+  const [isReady, setIsReady] = React.useState(false);
 
   return ReactDOM.createPortal(
     <StatsContainer>
       <div>Players connected: {numOfPlayers}</div>
-      <div>Players ready: {numOfPlayersReady}</div>
+      <div>
+        Players ready: {numOfReadyPlayers} - <ReadyIndicator isReady={isReady} />
+      </div>
       <div>{children}</div>
-      <ReadyButton disabled>Ready</ReadyButton>
+      <ReadyButton
+        isReady={isReady}
+        disabled={disableReadyButton}
+        onClick={() => {
+          setIsReady(!isReady);
+          socket.emit(channels.setIsReady, !isReady);
+        }}>
+        Ready
+      </ReadyButton>
     </StatsContainer>,
     document.getElementById('stats-root')!
   );
@@ -32,13 +47,15 @@ const StatsContainer = styled.div`
   padding: 10px;
   z-index: 1;
   border-radius: 2px;
+  font-size: 20px;
+  line-height: 20px;
 `;
 
-const ReadyButton = styled.button`
+const ReadyButton = styled.button<{ isReady: boolean }>`
   color: white;
   border-radius: 2px;
   border: 2px solid white;
-  background-color: #313131;
+  background-color: ${(props) => (props.isReady ? 'dodgerblue' : '#313131')};
   padding: 6px;
   margin-top: 6px;
   cursor: pointer;
@@ -47,4 +64,11 @@ const ReadyButton = styled.button`
     background-color: gray;
     cursor: default;
   }
+`;
+
+const ReadyIndicator = styled.div<{ isReady: boolean }>`
+  display: inline-block;
+  width: 30px;
+  height: 16px;
+  background-color: ${(props) => (props.isReady ? 'green' : 'red')};
 `;

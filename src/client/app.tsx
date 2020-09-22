@@ -1,20 +1,31 @@
 import * as React from 'react';
-import { useDrop } from 'react-dnd';
-import io from 'socket.io-client';
 import styled from 'styled-components';
+import { socket } from '.';
 import { channels } from '../server/socket/channels';
 import Field from './components/field';
 import Stats from './components/stats';
 
 const App: React.FC = () => {
-  const [text, setText] = React.useState('waiting...');
   const [numOfPlayers, setNumOfPlayers] = React.useState(0);
+  const [numOfReadyPlayers, setNumOfReadyPlayers] = React.useState(0);
+  const [clientId, setClientId] = React.useState<string>('');
+  const [playerNumber, setPlayerNumber] = React.useState<number>(0);
+  const [disableReadyButton, setDisableReadyButton] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    const socket = io.connect(window.location.host);
-
-    socket.on(channels.updateNumOfPlayers, (num) => {
+    socket.on(channels.updateNumOfPlayers, (num: number) => {
       setNumOfPlayers(num);
+      if (num > 1 && num < 5) setDisableReadyButton(false);
+      else setDisableReadyButton(true);
+    });
+
+    socket.on(channels.sendId, (data: { id: string; playerNum: number }) => {
+      setClientId(data.id);
+      setPlayerNumber(data.playerNum);
+    });
+
+    socket.on(channels.updateNumOfReadyPlayers, (num: number) => {
+      setNumOfReadyPlayers(num);
     });
 
     return () => {
@@ -24,8 +35,12 @@ const App: React.FC = () => {
 
   return (
     <AppContainer>
-      <Stats numOfPlayers={numOfPlayers} numOfPlayersReady={0}>
-        {text}
+      <Stats
+        numOfPlayers={numOfPlayers}
+        numOfReadyPlayers={numOfReadyPlayers}
+        disableReadyButton={disableReadyButton}>
+        <div>Your client id: {clientId}</div>
+        <div>Player number: {playerNumber}</div>
       </Stats>
       <Field numberOfPlayers={numOfPlayers} />
     </AppContainer>
