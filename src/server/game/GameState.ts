@@ -1,62 +1,86 @@
-interface PlayerScores {
-  [key: string]: number;
-}
+import * as socketIO from 'socket.io';
+import { channels } from '../socket/channels';
 
 export class GameState {
-  constructor() {}
+  constructor(socket: socketIO.Server) {
+    this.socket = socket;
+  }
+
+  private socket: socketIO.Server;
 
   // Should be 2-4 to start the game
-  private playerIds: string[] = [];
-  private playerScores: PlayerScores = {};
+  private players: Players = {};
   private hasStarted: boolean = false;
   private hasEnded: boolean = true;
   private gamePhase?: GamePhases;
 
-  getNumOfPlayers = (): number => this.playerIds.length;
-  getPlayerIds = (): string[] => this.playerIds;
-  getPlayerScores = (): PlayerScores => this.playerScores;
+  getNumberOfPlayers = (): number => Object.entries(this.players).length;
+  getPlayers = (): Players => this.players;
   getHasStarted = (): boolean => this.hasStarted;
   getHasEnded = (): boolean => this.hasEnded;
 
-  addPlayer = (playerId: string): string | null => {
-    if (!this.hasStarted && this.playerIds.length < 4) {
-      this.playerIds.push(playerId);
-      return playerId;
+  addPlayer = (playerId: string): Player | null => {
+    if (!this.hasStarted && Object.entries(this.players).length < 4) {
+      this.players[playerId] = {
+        playerNumber: Object.entries(this.players).length + 1,
+        score: 0,
+        isReady: false,
+      };
+      return this.players[playerId];
     }
     return null;
   };
 
   removePlayer = (playerId: string): boolean => {
-    if (!this.hasStarted && this.playerIds.includes(playerId)) {
-      this.playerIds = this.playerIds.filter((id) => id !== playerId);
+    if (!this.hasStarted) {
+      if (!this.players[playerId]) {
+        return false;
+      }
+      delete this.players[playerId];
       return true;
     }
     return false;
   };
 
-  initPlayerScores = () => {
-    for (const id in this.playerIds) {
-      this.playerScores[id] = 0;
+  setPlayerReady = (playerId: string, isReady: boolean) => {
+    this.players[playerId].isReady = isReady;
+  };
+
+  getNumberOfReadyPlayers = (): number => {
+    let numberOfReadyPlayers = 0;
+    for (const player of Object.values(this.players)) {
+      if (player.isReady) numberOfReadyPlayers++;
     }
+    return numberOfReadyPlayers;
   };
 
   resetPlayerScores = () => {
-    this.playerScores = {};
+    for (const id in Object.keys(this.players)) {
+      this.players[id].score = 0;
+    }
   };
 
   addPoints = (playerId: string, score: number) => {
-    this.playerScores[playerId] += score;
-    if (this.playerScores[playerId] >= 24) this.hasEnded = true;
+    this.players[playerId].score += score;
+    if (this.players[playerId].score >= 24) this.hasEnded = true;
+  };
+
+  areAllPlayersReady = (): boolean => {
+    return this.getNumberOfPlayers() === this.getNumberOfReadyPlayers();
   };
 
   onStart = () => {
-    this.initPlayerScores();
+    this.resetPlayerScores();
     this.hasStarted = true;
     this.gamePhase = GamePhases.DEALING;
+    const playerToStart = Object.values(this.players)[Math.floor(Math.random() * 4)];
+    this.socket.emit(channels.gameStarted, { playerToStart });
   };
 
   start = (): void => {
-    this.onStart();
+    if (this.areAllPlayersReady()) {
+      this.onStart();
+    }
   };
 }
 
@@ -73,4 +97,14 @@ export enum GameTypes {
   GAME12,
   GAME18,
   GAME24,
+}
+
+interface Player {
+  playerNumber: number;
+  score: number;
+  isReady: boolean;
+}
+
+interface Players {
+  [key: string]: Player;
 }
