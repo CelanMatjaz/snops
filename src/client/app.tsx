@@ -1,16 +1,21 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import { socket } from '.';
-import { channels } from '../server/socket/channels';
-import Field from './components/field';
-import Stats from './components/stats';
+import * as React from "react";
+import styled from "styled-components";
+import { socket } from ".";
+import { Player } from "../server/game/Types";
+import { channels } from "../server/socket/channels";
+import Field from "./components/field";
+import ShowDealTypeSelect from "./components/showDealTypeSelect";
+import Stats from "./components/stats";
 
 const App: React.FC = () => {
   const [numOfPlayers, setNumOfPlayers] = React.useState(0);
   const [numOfReadyPlayers, setNumOfReadyPlayers] = React.useState(0);
-  const [clientId, setClientId] = React.useState<string>('');
+  const [clientId, setClientId] = React.useState<string>("");
+  const [showDealTypeSelect, setShowDealTypeSelect] = React.useState(false);
   const [playerNumber, setPlayerNumber] = React.useState<number>(0);
-  const [disableReadyButton, setDisableReadyButton] = React.useState<boolean>(true);
+  const [disableReadyButton, setDisableReadyButton] = React.useState<boolean>(
+    true
+  );
 
   React.useEffect(() => {
     socket.on(channels.updateNumOfPlayers, (num: number) => {
@@ -28,6 +33,12 @@ const App: React.FC = () => {
       setNumOfReadyPlayers(num);
     });
 
+    socket.on(channels.gameStarted, (playerToSelectDealType: Player) => {
+      if (playerNumber === playerToSelectDealType.playerNumber) {
+        setShowDealTypeSelect(true);
+      }
+    });
+
     return () => {
       socket.close();
     };
@@ -38,10 +49,13 @@ const App: React.FC = () => {
       <Stats
         numOfPlayers={numOfPlayers}
         numOfReadyPlayers={numOfReadyPlayers}
-        disableReadyButton={disableReadyButton}>
-        <div>Your client id: {clientId}</div>
+        disableReadyButton={disableReadyButton}
+      >
         <div>Player number: {playerNumber}</div>
       </Stats>
+      {showDealTypeSelect ? (
+        <ShowDealTypeSelect showDraw={numOfPlayers === 2} />
+      ) : null}
       <Field numberOfPlayers={numOfPlayers} />
     </AppContainer>
   );
