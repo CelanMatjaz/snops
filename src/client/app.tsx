@@ -1,14 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
 
-import { socket } from ".";
-
 const App: React.FC = () => {  
-  return (
-    <AppContainer>
-      Hello Šnops
-    </AppContainer>
-  );
+  return <div>Hello Šnops</div>
 };
 
 export default App;
