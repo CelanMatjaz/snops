@@ -8,8 +8,6 @@ const outputPathDist = path.resolve('./build/dist/public');
 
 const arg = process.argv[2];
 
-console.log(process.argv);
-
 if (arg === 'debug' || arg === 'dist') {
   if (fs.existsSync(publicPath)) {
     ncp(publicPath, arg === 'debug' ? outputPathDebug : outputPathDist, () => {

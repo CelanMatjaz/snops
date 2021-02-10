@@ -1,6 +1,6 @@
+import cors from 'cors';
 import * as express from 'express';
 import * as path from 'path';
-import cors from 'cors';
 
 const app = express.default();
 
@@ -12,6 +12,8 @@ const publicPath = path.join(
 );
 
 const htmlPath = path.join(publicPath, 'index.html');
+
+const filePath = './yes.txt';
 
 app.use(cors());
 app.use('/public', express.static(publicPath));
